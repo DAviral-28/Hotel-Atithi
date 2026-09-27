@@ -1,0 +1,47 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Maven Wrapper Unix Script (Self-Bootstrapping)
+# ----------------------------------------------------------------------------
+
+PRG="$0"
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
+done
+
+SAVED="`pwd`"
+cd "`dirname \"$PRG\"`" >/dev/null
+APPDIR="`pwd`"
+cd "$SAVED" >/dev/null
+
+MAVEN_VERSION="3.9.9"
+WRAPPER_DIR="$APPDIR/.mvn/wrapper"
+MAVEN_HOME="$WRAPPER_DIR/apache-maven-$MAVEN_VERSION"
+MAVEN_EXE="$MAVEN_HOME/bin/mvn"
+
+if [ ! -x "$MAVEN_EXE" ]; then
+    echo "[mvnw] Apache Maven $MAVEN_VERSION not found locally. Downloading..."
+    MAVEN_ZIP="$WRAPPER_DIR/apache-maven-$MAVEN_VERSION-bin.zip"
+    MAVEN_URL="https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.zip"
+    
+    mkdir -p "$WRAPPER_DIR"
+    if command -v curl >/dev/null 2>&1; then
+        curl -fsSL "$MAVEN_URL" -o "$MAVEN_ZIP"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -q "$MAVEN_URL" -O "$MAVEN_ZIP"
+    else
+        echo "[mvnw] Error: Neither curl nor wget found to download Maven." >&2
+        exit 1
+    fi
+
+    unzip -q -o "$MAVEN_ZIP" -d "$WRAPPER_DIR"
+    rm -f "$MAVEN_ZIP"
+    chmod +x "$MAVEN_EXE"
+fi
+
+exec "$MAVEN_EXE" "$@"

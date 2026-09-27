@@ -1,0 +1,38 @@
+# macOS / OS Files
+.DS_Store
+Thumbs.db
+
+# Node / CDK
+node_modules/
+cdk.out/
+dist/
+*.js.map
+*.d.ts
+# ...but keep the hand-written Vite env typings that `tsc`/`vite build` need on a fresh clone
+!frontend/src/vite-env.d.ts
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+.mvn/wrapper/apache-maven-*/
+.mvn/wrapper/*.zip
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+*.ipr
+*.iws
+
+# Environment files (never commit real secrets/keys)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Logs
+*.log
+npm-debug.log*

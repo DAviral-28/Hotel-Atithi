@@ -1,0 +1,54 @@
+{
+  "hotelName": "Hotel Atithi",
+  "address": "Station Road, Gular Naka, Banda, Uttar Pradesh - 210001",
+  "landmark": "Near Banda Railway Station",
+  "phone": "+91 94523 14397",
+  "totalRooms": 32,
+  "standardCheckoutTime": "12:00 PM",
+  "floors": [
+    {
+      "floorNumber": 1,
+      "roomCount": 16,
+      "rooms": [
+        { "roomNumber": 101, "floor": 1, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 102, "floor": 1, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 103, "floor": 1, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 104, "floor": 1, "type": "DELUXE", "bedType": "SINGLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 1, "maxOccupancy": 2 },
+        { "roomNumber": 105, "floor": 1, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 106, "floor": 1, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 107, "floor": 1, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 108, "floor": 1, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 109, "floor": 1, "type": "SUPER_DELUXE", "bedType": "DOUBLE", "baseRate": 700, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 110, "floor": 1, "type": "AC", "bedType": "DOUBLE", "baseRate": 1100, "extraPersonRate": 200, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 111, "floor": 1, "type": "AC", "bedType": "DOUBLE", "baseRate": 1100, "extraPersonRate": 200, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 112, "floor": 1, "type": "AC", "bedType": "DOUBLE", "baseRate": 1100, "extraPersonRate": 200, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 113, "floor": 1, "type": "AC", "bedType": "DOUBLE", "baseRate": 1100, "extraPersonRate": 200, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 114, "floor": 1, "type": "SUPER_DELUXE", "bedType": "DOUBLE", "baseRate": 700, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 115, "floor": 1, "type": "SUPER_DELUXE", "bedType": "DOUBLE", "baseRate": 700, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 116, "floor": 1, "type": "SUPER_DELUXE", "bedType": "DOUBLE", "baseRate": 700, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 }
+      ]
+    },
+    {
+      "floorNumber": 2,
+      "roomCount": 16,
+      "rooms": [
+        { "roomNumber": 201, "floor": 2, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 202, "floor": 2, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 203, "floor": 2, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 204, "floor": 2, "type": "DELUXE", "bedType": "SINGLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 1, "maxOccupancy": 2 },
+        { "roomNumber": 205, "floor": 2, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 206, "floor": 2, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 207, "floor": 2, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 208, "floor": 2, "type": "DELUXE", "bedType": "DOUBLE", "baseRate": 600, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 209, "floor": 2, "type": "SUPER_DELUXE", "bedType": "DOUBLE", "baseRate": 700, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 210, "floor": 2, "type": "AC", "bedType": "DOUBLE", "baseRate": 1100, "extraPersonRate": 200, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 211, "floor": 2, "type": "AC", "bedType": "DOUBLE", "baseRate": 1100, "extraPersonRate": 200, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 212, "floor": 2, "type": "AC", "bedType": "DOUBLE", "baseRate": 1100, "extraPersonRate": 200, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 213, "floor": 2, "type": "AC", "bedType": "DOUBLE", "baseRate": 1100, "extraPersonRate": 200, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 214, "floor": 2, "type": "SUPER_DELUXE", "bedType": "DOUBLE", "baseRate": 700, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 215, "floor": 2, "type": "SUPER_DELUXE", "bedType": "DOUBLE", "baseRate": 700, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 },
+        { "roomNumber": 216, "floor": 2, "type": "SUPER_DELUXE", "bedType": "DOUBLE", "baseRate": 700, "extraPersonRate": 100, "taxRatePercent": 5, "baseOccupancy": 2, "maxOccupancy": 3 }
+      ]
+    }
+  ]
+}

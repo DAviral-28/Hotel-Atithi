@@ -1,0 +1,25 @@
+{
+  "name": "hotel-infrastructure",
+  "version": "1.0.0",
+  "description": "AWS CDK TypeScript infrastructure for 32-room Hotel Booking platform targeting ap-south-1",
+  "bin": {
+    "hotel-infra": "bin/hotel-infra.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.5",
+    "aws-cdk": "^2.270.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.270.0",
+    "constructs": "^10.3.0"
+  }
+}

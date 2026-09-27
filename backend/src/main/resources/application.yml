@@ -1,0 +1,46 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: hotel-booking-backend
+  main:
+    banner-mode: "off"
+
+hotel:
+  aws:
+    region: ${AWS_REGION:ap-south-1}
+    table-name: ${TABLE_NAME:HotelBookings}
+  checkout-time: "12:00 PM"
+  default-tax-rate: 0.05
+  payment:
+    # Zero-cost payments: the guest pays this UPI ID directly (QR / intent) and enters the UTR.
+    # Leave upi-vpa empty to hide the UPI option (pay-at-hotel only).
+    upi-vpa: ${HOTEL_UPI_VPA:}
+    upi-payee-name: ${HOTEL_UPI_PAYEE_NAME:Hotel Atithi}
+
+  staff:
+    # Front-desk console PIN (zero-cost auth). Default 1439 is for local use only - set HOTEL_STAFF_PIN when deploying.
+    pin: ${HOTEL_STAFF_PIN:}
+    token-hours: 10           # staff session lifetime, clamped to 8-12 hours
+  notifications:
+    # Optional AWS SES free-tier confirmation e-mails. Empty = e-mails are only logged, never sent.
+    ses-sender-email: ${AWS_SES_SENDER_EMAIL:}
+
+  cors:
+    # Exact origins allowed to call the API from a browser (comma-separated). Never "*".
+    # Deployed value = the CloudFront site URL, injected by CDK (see infrastructure/lib/hotel-infra-stack.ts).
+    allowed-origins: ${HOTEL_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:3000}
+  security:
+    # Secret pepper for the guest-phone blind index (HMAC-SHA256). Empty = derived from HOTEL_ENCRYPTION_KEY_256.
+    hmac-pepper: ${HOTEL_HMAC_PEPPER:}
+    # Also look up rows still indexed with the pre-Phase-3 plain SHA-256 and re-key them. Set false once migrated.
+    legacy-index-fallback: ${HOTEL_LEGACY_INDEX_FALLBACK:true}
+    rate-limit:
+      enabled: true
+      hold-max: 3               # holds per IP ...
+      hold-window-seconds: 600  # ... per 10 minutes
+      lookup-max: 5             # lookups + phone-verification attempts per IP ...
+      lookup-window-seconds: 60 # ... per minute
+      staff-login-max: 5              # staff PIN attempts per IP ...
+      staff-login-window-seconds: 300 # ... per 5 minutes
