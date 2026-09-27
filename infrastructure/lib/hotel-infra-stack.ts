@@ -9,6 +9,11 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as snsSubscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
+import * as budgets from 'aws-cdk-lib/aws-budgets';
 
 export class HotelInfraStack extends cdk.Stack {
   public readonly bookingsTable: dynamodb.Table;
@@ -143,6 +148,21 @@ export class HotelInfraStack extends cdk.Stack {
         strictTransportSecurity: {
           accessControlMaxAge: cdk.Duration.days(365),
           includeSubdomains: true,
+          override: true,
+        },
+        contentSecurityPolicy: {
+          // Scoped to what this SPA actually loads: itself, Google Fonts (index.html), room-card
+          // cover photos from Unsplash (roomDirectory.ts), and the API Gateway origin every booking
+          // call goes to (execute-api.ap-south-1.amazonaws.com — the *. wildcard covers any API ID,
+          // since the exact one is only known after this same deploy creates it).
+          contentSecurityPolicy:
+            "default-src 'self'; " +
+            "img-src 'self' data: https://images.unsplash.com; " +
+            "font-src 'self' https://fonts.gstatic.com; " +
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+            "script-src 'self'; " +
+            "connect-src 'self' https://*.execute-api.ap-south-1.amazonaws.com; " +
+            "object-src 'none'; base-uri 'self'; frame-ancestors 'none';",
           override: true,
         },
         contentTypeOptions: { override: true },
@@ -322,6 +342,104 @@ export class HotelInfraStack extends cdk.Stack {
       type: apigateway.ResponseType.DEFAULT_5XX,
       responseHeaders: gatewayErrorHeaders,
     });
+
+    // ---------------------------------------------------------------------------------------------
+    // Zero-cost monitoring: CloudWatch alarms (10 are free per month, always-free tier — this stack
+    // uses 4) + an SNS topic (free tier: 1,000 email notifications/month) + an AWS Budget (free: the
+    // first couple of budgets per account cost nothing). None of this changes what guests pay or what
+    // the site does; it only emails HOTEL_ALERT_EMAIL when something looks wrong or spend creeps up.
+    // ---------------------------------------------------------------------------------------------
+    const alertEmail = (process.env.HOTEL_ALERT_EMAIL || '').trim();
+    let alarmTopic: sns.Topic | undefined;
+    if (alertEmail) {
+      alarmTopic = new sns.Topic(this, 'HotelOpsAlarmTopic', {
+        topicName: 'hotel-atithi-ops-alerts',
+        displayName: 'Hotel Atithi — operational alerts',
+      });
+      alarmTopic.addSubscription(new snsSubscriptions.EmailSubscription(alertEmail));
+
+      const alarmAction = new cloudwatchActions.SnsAction(alarmTopic);
+
+      new cloudwatch.Alarm(this, 'HotelApiLambdaErrorsAlarm', {
+        alarmDescription: 'The booking API Lambda has thrown errors in the last 5 minutes.',
+        metric: this.apiLambda.metricErrors({ period: cdk.Duration.minutes(5) }),
+        threshold: 1,
+        evaluationPeriods: 1,
+        comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+      }).addAlarmAction(alarmAction);
+
+      new cloudwatch.Alarm(this, 'HotelApiLambdaThrottlesAlarm', {
+        alarmDescription: 'The booking API Lambda is being throttled (concurrency limit hit).',
+        metric: this.apiLambda.metricThrottles({ period: cdk.Duration.minutes(5) }),
+        threshold: 1,
+        evaluationPeriods: 1,
+        comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+      }).addAlarmAction(alarmAction);
+
+      new cloudwatch.Alarm(this, 'HotelApiGateway5xxAlarm', {
+        alarmDescription: 'API Gateway is returning 5xx errors to guests.',
+        metric: this.restApi.metricServerError({ period: cdk.Duration.minutes(5) }),
+        threshold: 1,
+        evaluationPeriods: 1,
+        comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+      }).addAlarmAction(alarmAction);
+
+      new cloudwatch.Alarm(this, 'HotelDynamoDbThrottleAlarm', {
+        alarmDescription: 'DynamoDB is throttling requests (the 5 RCU/WCU free-tier table is undersized for current traffic).',
+        metric: this.bookingsTable.metricThrottledRequests({ period: cdk.Duration.minutes(5) }),
+        threshold: 1,
+        evaluationPeriods: 1,
+        comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+      }).addAlarmAction(alarmAction);
+    } else {
+      cdk.Annotations.of(this).addWarning(
+        'HOTEL_ALERT_EMAIL is not set: no CloudWatch alarms or budget alert were created. Set it ' +
+          '(e.g. HOTEL_ALERT_EMAIL=you@example.com) and redeploy to get free e-mail alerts on errors, ' +
+          'throttling and rising AWS cost.'
+      );
+    }
+
+    // A monthly cost budget with actual + forecasted alerts at 80% / 100% of HOTEL_BUDGET_LIMIT_USD
+    // (default $5 — this whole stack is designed to run on the Free Tier, so any real spend at all is
+    // worth an e-mail). Creating a budget is itself free; only exceeding AWS Free Tier limits costs money.
+    if (alertEmail) {
+      const budgetLimit = Number(process.env.HOTEL_BUDGET_LIMIT_USD || '5');
+      const subscribers: budgets.CfnBudget.SubscriberProperty[] = [
+        { address: alertEmail, subscriptionType: 'EMAIL' },
+      ];
+      new budgets.CfnBudget(this, 'HotelMonthlyCostBudget', {
+        budget: {
+          budgetName: 'hotel-atithi-monthly-cost',
+          budgetType: 'COST',
+          timeUnit: 'MONTHLY',
+          budgetLimit: { amount: budgetLimit, unit: 'USD' },
+        },
+        notificationsWithSubscribers: [
+          {
+            notification: {
+              comparisonOperator: 'GREATER_THAN',
+              notificationType: 'ACTUAL',
+              threshold: 80,
+              thresholdType: 'PERCENTAGE',
+            },
+            subscribers,
+          },
+          {
+            notification: {
+              comparisonOperator: 'GREATER_THAN',
+              notificationType: 'FORECASTED',
+              threshold: 100,
+              thresholdType: 'PERCENTAGE',
+            },
+            subscribers,
+          },
+        ],
+      });
+    }
 
     // Stack Outputs
     new cdk.CfnOutput(this, 'DynamoDBTableName', {

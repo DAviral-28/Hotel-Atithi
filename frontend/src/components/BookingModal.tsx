@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Clock, User, Phone, Mail, Users, ArrowRight, CheckCircle, Banknote } from 'lucide-react';
 import { BookingResponse, Room } from '../types';
-import { confirmBooking, holdRoom, isRetryable, releaseHold } from '../services/api';
+import { confirmBooking, holdRoom, isRetryable, releaseHold, releaseHoldOnUnload } from '../services/api';
 import { nightsBetween } from '../utils/dates';
 import { PHONE_ERROR_MESSAGE, isValidPhone, normalizePhone } from '../utils/phoneNormalizer';
 import { ErrorBanner } from './ErrorBanner';
@@ -76,6 +76,22 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
     return () => clearInterval(timer);
   }, [step, secondsRemaining]);
+
+  // Release the room the instant the guest actually closes the tab/browser or navigates away,
+  // instead of letting it sit locked for up to the rest of the 10-minute window. Deliberately
+  // `pagehide` only, NOT `visibilitychange` -> 'hidden': visibilitychange also fires on an ordinary
+  // tab switch (checking email, copying a code) and releasing the hold then would cancel a booking
+  // the guest still intends to finish. `pagehide` fires only on a real unload/navigation-away, and
+  // uses releaseHoldOnUnload's keepalive fetch since a page that's going away can't wait for a
+  // normal await to resolve.
+  useEffect(() => {
+    if (step !== 'HOLD_LOCKED' || !holdBooking) return;
+
+    const releaseOnLeave = () => releaseHoldOnUnload(holdBooking.bookingId, holdBooking.bookingToken);
+
+    window.addEventListener('pagehide', releaseOnLeave);
+    return () => window.removeEventListener('pagehide', releaseOnLeave);
+  }, [step, holdBooking]);
 
   const formatTimer = (secs: number) => {
     const m = Math.floor(secs / 60);

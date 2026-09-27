@@ -197,6 +197,28 @@ export async function releaseHold(bookingId: string, bookingToken?: string): Pro
   });
 }
 
+/**
+ * Best-effort release fired when the guest closes the tab / navigates away while still holding a
+ * room (BookingModal's `pagehide`/`visibilitychange` handler) — a normal `await releaseHold(...)`
+ * would usually get killed mid-flight by the browser tearing the page down before the request
+ * finishes. `keepalive: true` tells the browser to let this one request outlive the page; nothing
+ * reads the response (there's no page left to read it), and any failure is silently swallowed
+ * since the 10-minute hold will still expire on its own on the server either way.
+ */
+export function releaseHoldOnUnload(bookingId: string, bookingToken?: string): void {
+  try {
+    fetch(`${API_BASE}/api/bookings/${encodeURIComponent(bookingId)}/hold`, {
+      method: 'DELETE',
+      headers: bookingToken ? { 'X-Booking-Token': bookingToken } : {},
+      keepalive: true,
+    }).catch(() => {
+      /* best effort only - the hold still expires on its own within 10 minutes */
+    });
+  } catch {
+    /* fetch itself can throw synchronously (e.g. keepalive payload limits); ignore - same reason */
+  }
+}
+
 export async function confirmBooking(
   bookingId: string,
   payload: ConfirmBookingRequest,
